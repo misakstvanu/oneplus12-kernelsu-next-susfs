@@ -25,18 +25,22 @@ jobs:
         run: |
           mkdir ~/bin
           export PATH="$HOME/bin:$PATH"
-          mkdir android-kernel && cd android-kernel
+          mkdir android-kernel
+          cd android-kernel
           curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
           chmod a+x ~/bin/repo
       
       - name: Init and sync repo
         run: |
+          cd android-kernel
           export PATH="$HOME/bin:$PATH"
           repo init -u https://android.googlesource.com/kernel/manifest -b common-android14-6.1-lts
           repo sync
       
       - name: Build
-        run: ./tools/bazel run //common:kernel_aarch64_dist --
+        run: |
+          cd android-kernel
+          ./tools/bazel run //common:kernel_aarch64_dist --
       
       - name: Archive artifacts
         uses: actions/upload-artifact@v4

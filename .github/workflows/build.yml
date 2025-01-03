@@ -31,6 +31,7 @@ jobs:
       
       - name: Init and sync repo
         run: |
+          export PATH="$HOME/bin:$PATH"
           repo init -u https://android.googlesource.com/kernel/manifest -b common-android14-6.1-lts
           repo sync
       

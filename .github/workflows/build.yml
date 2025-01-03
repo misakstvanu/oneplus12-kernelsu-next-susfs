@@ -40,11 +40,11 @@ jobs:
           cd ..
           git clone https://gitlab.com/simonpunk/susfs4ksu.git
           cd susfs4ksu
-          cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $KERNEL_REPO/KernelSU/
+          cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $KERNEL_REPO/KernelSU-Next/
           cp ./kernel_patches/50_add_susfs_in_kernel-6.1.patch $KERNEL_REPO/common/
           cp ./kernel_patches/fs/* $KERNEL_REPO/common/fs/
           cp ./kernel_patches/include/linux/* $KERNEL_REPO/common/include/linux/
-          cd $KERNEL_REPO/KernelSU
+          cd $KERNEL_REPO/KernelSU-Next
           patch -p1 < 10_enable_susfs_for_ksu.patch || true
           cd $KERNEL_REPO/common
           patch -p1 < 50_add_susfs_in_kernel-6.1.patch || true

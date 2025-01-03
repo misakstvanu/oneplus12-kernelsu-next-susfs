@@ -4,6 +4,8 @@ name: Build
 
 # Controls when the workflow will run
 on:
+  push:
+    branches: ['master']
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -19,11 +21,21 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Set up dirs and tools
         run: |
-          chmod +x recipe.sh
-          ./recipe.sh
+          mkdir ~/bin
+          export PATH="$HOME/bin:$PATH"
+          mkdir android-kernel && cd android-kernel
+          curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+          chmod a+x ~/bin/repo
+      
+      - name: Init and sync repo
+        run: |
+          repo init -u https://android.googlesource.com/kernel/manifest -b common-android14-6.1-lts
+          repo sync
+      
+      - name: Build
+        run: ./tools/bazel run //common:kernel_aarch64_dist --
       
       - name: Archive artifacts
         uses: actions/upload-artifact@v4

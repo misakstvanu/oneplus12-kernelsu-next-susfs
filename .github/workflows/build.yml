@@ -37,6 +37,9 @@ jobs:
         run: |
           cd android-kernel
           export KERNEL_REPO=$(pwd)
+          cd ..
+          git clone https://gitlab.com/simonpunk/susfs4ksu.git
+          cd susfs4ksu
           cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $KERNEL_REPO/KernelSU/
           cp ./kernel_patches/50_add_susfs_in_kernel-6.1.patch $KERNEL_REPO/common/
           cp ./kernel_patches/fs/* $KERNEL_REPO/common/fs/
@@ -47,6 +50,7 @@ jobs:
           patch -p1 < 50_add_susfs_in_kernel-6.1.patch || true
           rm -f android/abi_gki_protected_exports_aarch64 android/abi_gki_protected_exports_x86_64
           sed -i 's/spl_date=.*/spl_date=current_spl_date/' $KERNEL_REPO/build/kernel/build_utils.sh
+          cd $KERNEL_REPO
 
       - name: Configure kernel
         run: |

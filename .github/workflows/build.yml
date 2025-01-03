@@ -36,6 +36,11 @@ jobs:
           export PATH="$HOME/bin:$PATH"
           repo init -u https://android.googlesource.com/kernel/manifest -b common-android14-6.1-lts
           repo sync
+
+      - name: Add KernelSU
+        run: |
+          cd android-kernel
+          curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs-a14-6.1
       
       - name: Build
         run: |

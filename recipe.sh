@@ -13,3 +13,5 @@ export REPO_COLOR_DISPLAY=1
 
 repo init -u https://android.googlesource.com/kernel/manifest -b common-android14-6.1-lts
 repo sync
+
+./tools/bazel run //common:kernel_aarch64_dist

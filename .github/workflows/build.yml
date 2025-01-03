@@ -1,24 +1,15 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Build
 
-# Controls when the workflow will run
 on:
   push:
     branches: ['master']
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
       - name: Set up dirs and tools
@@ -42,15 +33,37 @@ jobs:
           cd android-kernel
           curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next-susfs-a14-6.1
       
+      - name: Integrate SUSFS
+        run: |
+          cd android-kernel
+          export KERNEL_REPO=$(pwd)
+          cp ./kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $KERNEL_REPO/KernelSU/
+          cp ./kernel_patches/50_add_susfs_in_kernel-6.1.patch $KERNEL_REPO/common/
+          cp ./kernel_patches/fs/* $KERNEL_REPO/common/fs/
+          cp ./kernel_patches/include/linux/* $KERNEL_REPO/common/include/linux/
+          cd $KERNEL_REPO/KernelSU
+          patch -p1 < 10_enable_susfs_for_ksu.patch || true
+          cd $KERNEL_REPO/common
+          patch -p1 < 50_add_susfs_in_kernel-6.1.patch || true
+          rm -f android/abi_gki_protected_exports_aarch64 android/abi_gki_protected_exports_x86_64
+          sed -i 's/spl_date=.*/spl_date=current_spl_date/' $KERNEL_REPO/build/kernel/build_utils.sh
+
+      - name: Configure kernel
+        run: |
+          cd android-kernel
+          ./tools/bazel run //common:menuconfig -- \
+            -enable CONFIG_KSU \
+            -enable CONFIG_KSU_SUSFS \
+            -disable CONFIG_KSU_SUSFS_SUS_SU \
+            -enable CONFIG_KSU_SUSFS_HAS_MAGIC_MOUNT
+
       - name: Build
         run: |
           cd android-kernel
           ./tools/bazel run //common:kernel_aarch64_dist --
-      
+
       - name: Archive artifacts
         uses: actions/upload-artifact@v4
         with:
           name: images
           path: android-kernel/out/kernel_aarch64/dist
-
-      

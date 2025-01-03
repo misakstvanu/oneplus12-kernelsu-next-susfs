@@ -24,3 +24,11 @@ jobs:
         run: |
           chmod +x recipe.sh
           ./recipe.sh
+      
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: android-kernel/out/kernel_aarch64/dist
+
+      
